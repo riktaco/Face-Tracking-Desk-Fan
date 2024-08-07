@@ -5,33 +5,30 @@ Servo myServo;
 #define DIRA 3
 #define DIRB 4
 #define SERVO 9
-
-String inString = "";  // string to hold input
-int angle = 0;
  
 void setup() {
-    //---set pin direction
+    // Set pins
     pinMode(ENABLE,OUTPUT);
     pinMode(DIRA,OUTPUT);
     pinMode(DIRB,OUTPUT);
     myServo.attach(SERVO);
     Serial.begin(115200);
     while (!Serial) {
-    ;  // wait for serial port to connect. Needed for native USB port only
+    ;  // Wait for serial port to connect. Needed for native USB port only
     }
     Serial.println("Ready to receive data");
-    myServo.write(0);
+
+    // Set the servo to the middle position
+    myServo.write(90);
+    // Set motor direction
+    digitalWrite(DIRA,HIGH);
+    digitalWrite(DIRB,LOW);
+    // Set motor speed
+    analogWrite(ENABLE,200);
 }
 
 void loop() {
-    //---set motor direction
-    digitalWrite(DIRA,HIGH);
-    digitalWrite(DIRB,LOW);
-    //---set motor speed
-    analogWrite(ENABLE,200);
-
-    while (Serial.available() > 0) {
-        angle = Serial.parseInt();
-        myServo.write(angle);
+    if(Serial.available() > 0) {
+        myServo.write(Serial.parseInt());
     }
 }

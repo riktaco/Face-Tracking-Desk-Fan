@@ -14,6 +14,7 @@ cap = cv2.VideoCapture(0)
 while True:
     # Read a frame from the webcam
     ret, frame = cap.read()
+    frame = cv2.flip(frame,1)  # Flip the frame horizontally
     if not ret:
         break
 
@@ -26,13 +27,19 @@ while True:
     # Draw rectangle around the faces and send coordinates to Arduino
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+
         # Calculate the center of the face
         center_x = x + w // 2
-        # Send the horizontal coordinate to Arduino
+
+        # frame.shape[1] is the width of the frame, map the center_x to an angle between 0 and 180
         angle = int((center_x / frame.shape[1]) * 180)
-        ser.write(bytes(str(angle), 'utf-8'))
-        print(center_x)
-        time.sleep(1)  # Wait for a short period to prevent overwhelming the serial buffer
+
+        # Send the angle to Arduino
+        ser.write(str(angle).encode())
+        print(angle)
+
+        # Wait for 1 second
+        time.sleep(1)
 
     # Display the resulting frame
     cv2.imshow('Face Tracking', frame)
