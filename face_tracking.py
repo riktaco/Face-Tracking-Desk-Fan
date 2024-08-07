@@ -42,11 +42,11 @@ while True:
         time.sleep(1)
 
     # Display the resulting frame
-    cv2.imshow('Face Tracking', frame)
+    cv2.imshow('Face Tracking', frame)        
 
     # Break the loop on 'q' key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        break    
 
 # Release the capture and close windows
 cap.release()
