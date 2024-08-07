@@ -4,10 +4,12 @@ Servo myServo;
 #define ENABLE 11
 #define DIRA 9
 #define DIRB 10
-#define SERVO 13
+#define SERVO 3
 #define BUTTON 8
 
 int fanSpeed = 0;
+unsigned long lastButtonPress = 0;
+const unsigned long debounceDelay = 50; // Debounce delay in milliseconds
 
 void setup() {
     // Set pins
@@ -33,16 +35,29 @@ void setup() {
 }
 
 void loop() {
-    if(Serial.available() > 0) {
-        myServo.write(Serial.parseInt());
-    } else if(digitalRead(BUTTON) == HIGH) {
-        // 3 speeds: 0, 125, 250
-        if(fanSpeed == 250) {
-            fanSpeed = 0;
-        } else {
-            fanSpeed += 125;
+    unsigned long currentMillis = millis();
+    
+    // Button press handling with debounce
+    if (digitalRead(BUTTON) == HIGH) {
+        if (currentMillis - lastButtonPress >= debounceDelay) {
+            lastButtonPress = currentMillis;
+            
+            // 3 speeds: 0, 125, 250
+            if (fanSpeed == 250) {
+                fanSpeed = 0;
+            } else {
+                fanSpeed += 125;
+            }
+            
+            analogWrite(ENABLE, fanSpeed);
         }
-        analogWrite(ENABLE, fanSpeed);
-        delay(200); // Debounce
+    }
+
+    // Servo control via serial input
+    if (Serial.available() > 0) {
+        int angle = Serial.parseInt();
+        if (angle >= 0 && angle <= 180) {
+            myServo.write(angle);
+        }
     }
 }
